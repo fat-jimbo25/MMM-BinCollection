@@ -1,22 +1,35 @@
 
 import { BinType } from '@/components/WeekDay';
 
-// Sample bin collection schedule (this would typically come from an API or database)
+// Bin collection schedule from the Bin Calendar By Date (2025-03-20).pdf
 export const binSchedule: Record<string, BinType[]> = {
-  // Example data - replace with your actual schedule
-  '2024-07-01': ['black'],
-  '2024-07-08': ['black', 'blue'],
-  '2024-07-15': ['black', 'green'],
-  '2024-07-22': ['black', 'blue', 'brown'],
-  '2024-07-29': ['black'],
-  '2024-08-05': ['black', 'blue'],
-  '2024-08-12': ['black', 'green'],
-  '2024-08-19': ['black', 'blue', 'brown'],
-  '2024-08-26': ['black'],
-  // Current week (adjust dates to match current dates for testing)
-  [format(new Date(), 'yyyy-MM-dd')]: ['black', 'blue'],
-  [format(addDays(new Date(), 2), 'yyyy-MM-dd')]: ['green'],
-  [format(addDays(new Date(), 4), 'yyyy-MM-dd')]: ['brown'],
+  // March 2025
+  "2025-03-20": ["black", "blue"],
+  "2025-03-27": ["green", "brown"],
+  
+  // April 2025
+  "2025-04-03": ["black", "blue"],
+  "2025-04-10": ["green", "brown"],
+  "2025-04-17": ["black", "blue"],
+  "2025-04-24": ["green", "brown"],
+  
+  // May 2025
+  "2025-05-01": ["black", "blue"],
+  "2025-05-08": ["green", "brown"],
+  "2025-05-15": ["black", "blue"],
+  "2025-05-22": ["green", "brown"],
+  "2025-05-29": ["black", "blue"],
+  
+  // June 2025
+  "2025-06-05": ["green", "brown"],
+  "2025-06-12": ["black", "blue"],
+  "2025-06-19": ["green", "brown"],
+  "2025-06-26": ["black", "blue"],
+  
+  // Add current date entries for testing (so something shows in the current view)
+  [format(new Date(), 'yyyy-MM-dd')]: ["black", "blue"],
+  [format(addDays(new Date(), 2), 'yyyy-MM-dd')]: ["green"],
+  [format(addDays(new Date(), 4), 'yyyy-MM-dd')]: ["brown"],
 };
 
 // Helper function to format date as yyyy-MM-dd
