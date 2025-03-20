@@ -120,11 +120,11 @@ export const binSchedule: Record<string, BinType[]> = {
   "2025-12-15": ["blue"],  // Paper and card
   "2025-12-18": ["brown"], // Food Waste
   "2025-12-22": ["black"], // Non-recyclable Waste
-  "2025-12-27": ["brown"], // Food Waste
+  "2025-12-27": [],        // No collections on weekends
   "2025-12-29": ["blue"],  // Plastic bottles and containers, cans and cartons
   
   // January 2026
-  "2026-01-03": ["brown"], // Food Waste
+  "2026-01-03": [],        // No collections on weekends
   "2026-01-05": ["black"], // Non-recyclable Waste
   "2026-01-08": ["brown"], // Food Waste
   "2026-01-12": ["blue"],  // Paper and card
@@ -146,9 +146,9 @@ export const binSchedule: Record<string, BinType[]> = {
   "2026-02-26": ["brown"], // Food Waste
   
   // Add current date entries for testing (so something shows in the current view)
-  [format(new Date(), 'yyyy-MM-dd')]: ["black", "blue"],
-  [format(addDays(new Date(), 2), 'yyyy-MM-dd')]: ["green"],
-  [format(addDays(new Date(), 4), 'yyyy-MM-dd')]: ["brown"],
+  [format(new Date(), 'yyyy-MM-dd')]: ["brown"],
+  [format(addDays(new Date(), 2), 'yyyy-MM-dd')]: [], // Remove weekend collections
+  [format(addDays(new Date(), 4), 'yyyy-MM-dd')]: ["blue"],
 };
 
 // Helper function to format date as yyyy-MM-dd

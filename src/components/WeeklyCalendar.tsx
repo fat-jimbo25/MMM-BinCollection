@@ -46,14 +46,19 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
       const formattedDate = format(day, 'yyyy-MM-dd');
       const binsForDay = binSchedule[formattedDate] || [];
       
+      // Weekend check - ensure no bins are displayed on weekends
+      const dayOfWeek = day.getDay(); // 0 is Sunday, 6 is Saturday
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const finalBins = isWeekend ? [] : binsForDay;
+      
       // Debug log to see what bins we're finding for each day
-      console.log(`Day ${formattedDate}:`, binsForDay);
+      console.log(`Day ${formattedDate}:`, finalBins, isWeekend ? '(weekend)' : '');
 
       days.push(
         <WeekDay 
           key={i} 
           date={day} 
-          bins={binsForDay}
+          bins={finalBins}
           isToday={isToday}
           isCurrentWeek={isCurrentWeek}
         />
