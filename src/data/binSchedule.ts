@@ -4,8 +4,14 @@ import { BinType } from '@/components/WeekDay';
 // Bin collection schedule from the Bin Calendar By Date (2025-03-20).pdf
 export const binSchedule: Record<string, BinType[]> = {
   // March 2025
-  "2025-03-20": ["brown"], // Updated to brown food waste bin only
-  "2025-03-27": ["green", "brown"],
+  "2025-03-06": ["brown"], // Food Waste - Brown Bin
+  "2025-03-13": ["brown"], // Food Waste - Brown bin
+  "2025-03-17": ["black"], // Non-recyclable Waste - Purple bin (using black color)
+  "2025-03-19": ["green"], // Garden Waste - Green bin
+  "2025-03-20": ["brown"], // Food Waste - Brown Bin
+  "2025-03-24": ["blue"],  // Plastic bottles and containers, cans and cartons - Grey bin (using blue color)
+  "2025-03-27": ["brown"], // Food Waste - Brown bin
+  "2025-03-31": ["black"], // Non-recyclable Waste - purple bin (using black color)
   
   // April 2025
   "2025-04-03": ["black", "blue"],
