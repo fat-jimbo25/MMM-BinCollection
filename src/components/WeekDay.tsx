@@ -20,7 +20,7 @@ const WeekDay: React.FC<WeekDayProps> = ({ date, bins, isToday, isCurrentWeek })
         'flex flex-col items-center p-2 rounded-lg transition-all duration-300',
         'hover:bg-white/5 hover:shadow-lg',
         isToday ? 'bg-white/10 ring-1 ring-white/20' : 'bg-transparent',
-        !isCurrentWeek && 'opacity-60'
+        !isCurrentWeek && 'opacity-80'
       )}
     >
       <div className="text-xs font-medium mb-1">{format(date, 'EEE')}</div>
@@ -33,27 +33,28 @@ const WeekDay: React.FC<WeekDayProps> = ({ date, bins, isToday, isCurrentWeek })
         {format(date, 'd')}
       </div>
       
-      <div className="flex space-x-1 mt-1 h-10 items-end">
-        {bins.map((bin, index) => (
-          bin && (
-            <div 
-              key={`${bin}-${index}`} 
-              className={cn(
-                'transform transition-transform duration-300 ease-out',
-                'animate-slide-up',
-                isToday ? 'scale-110' : ''
-              )}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <BinIcon 
-                type={bin} 
-                size="sm" 
-                animate={true} 
-              />
-            </div>
-          )
-        ))}
-        {bins.length === 0 && (
+      <div className="flex flex-wrap justify-center gap-1 mt-1 min-h-10 items-end">
+        {bins && bins.length > 0 ? (
+          bins.map((bin, index) => (
+            bin && (
+              <div 
+                key={`${bin}-${index}`} 
+                className={cn(
+                  'transform transition-transform duration-300 ease-out',
+                  'animate-slide-up',
+                  isToday ? 'scale-110' : ''
+                )}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <BinIcon 
+                  type={bin} 
+                  size="sm" 
+                  animate={true} 
+                />
+              </div>
+            )
+          ))
+        ) : (
           <div className="text-xs text-gray-400 italic">No collection</div>
         )}
       </div>

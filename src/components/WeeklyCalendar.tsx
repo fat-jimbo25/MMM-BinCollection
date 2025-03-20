@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { format, addDays, isSameDay, startOfWeek, addWeeks, subWeeks, isSameWeek } from 'date-fns';
+import { format, addDays, isSameDay, startOfWeek, addWeeks, subWeeks, isSameWeek, parseISO } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import WeekDay, { BinType } from './WeekDay';
@@ -62,6 +62,20 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
     }, 300);
   };
 
+  // Function to navigate to a specific date (for testing specific dates)
+  const goToDate = (dateString: string) => {
+    try {
+      const targetDate = parseISO(dateString);
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentWeekStart(startOfWeek(targetDate, { weekStartsOn: 1 }));
+        setIsAnimating(false);
+      }, 300);
+    } catch (error) {
+      console.error("Invalid date format", error);
+    }
+  };
+
   return (
     <div className={cn(
       'rounded-xl p-4 glass-dark text-white overflow-hidden',
@@ -108,14 +122,14 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
 
       <div className="mt-6 border-t border-white/10 pt-4">
         <div className="text-sm font-medium mb-2">Legend</div>
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap gap-4">
           <div className="flex items-center">
             <BinIcon type="black" size="sm" className="mr-2" />
-            <span className="text-xs">General</span>
+            <span className="text-xs">General/Purple</span>
           </div>
           <div className="flex items-center">
             <BinIcon type="blue" size="sm" className="mr-2" />
-            <span className="text-xs">Recycling</span>
+            <span className="text-xs">Recycling/Grey</span>
           </div>
           <div className="flex items-center">
             <BinIcon type="green" size="sm" className="mr-2" />
@@ -126,6 +140,16 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
             <span className="text-xs">Food</span>
           </div>
         </div>
+      </div>
+
+      {/* Jump to March 2025 for testing */}
+      <div className="mt-4 pt-2 border-t border-white/10 flex justify-center">
+        <button 
+          onClick={() => goToDate('2025-03-17')}
+          className="px-3 py-1 text-xs bg-white/10 hover:bg-white/20 rounded-md transition-colors"
+        >
+          View March 2025
+        </button>
       </div>
     </div>
   );

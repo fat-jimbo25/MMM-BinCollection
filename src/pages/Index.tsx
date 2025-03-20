@@ -17,8 +17,11 @@ const Index = () => {
           <div className="opacity-0 animate-scale-in animate-fill-forwards">
             <WeeklyCalendar className="w-full shadow-xl" />
             
-            <div className="text-center mt-6 text-white/50 text-sm">
-              <p>Magic Mirror Bin Collection Module</p>
+            <div className="text-center mt-6 text-white/70 text-sm">
+              <p className="mb-2">Magic Mirror Bin Collection Module</p>
+              <p className="text-xs text-white/50">
+                Displaying bin collection schedule with color-coded bins. Use the button below the calendar to view March 2025 schedule.
+              </p>
             </div>
           </div>
         )}
