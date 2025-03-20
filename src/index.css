@@ -112,32 +112,4 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Animations */
-.fade-enter {
-  opacity: 0;
-}
-.fade-enter-active {
-  opacity: 1;
-  transition: opacity 300ms;
-}
-.fade-exit {
-  opacity: 1;
-}
-.fade-exit-active {
-  opacity: 0;
-  transition: opacity 300ms;
-}
-
-/* Custom transitions */
-.bin-transition {
-  transition-property: transform, opacity, background-color;
-  transition-duration: 400ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hover-scale {
-  transition: transform 0.3s ease;
-}
-.hover-scale:hover {
-  transform: scale(1.02);
-}
+/* ... keep existing code (animations and transitions) */
