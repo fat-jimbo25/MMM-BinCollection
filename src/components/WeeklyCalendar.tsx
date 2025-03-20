@@ -137,7 +137,7 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
           </div>
           <div className="flex items-center">
             <BinIcon type="blue" size="sm" className="mr-2" />
-            <span className="text-xs">Recycling/Grey</span>
+            <span className="text-xs">Paper, Plastic & Cans/Grey</span>
           </div>
           <div className="flex items-center">
             <BinIcon type="green" size="sm" className="mr-2" />
