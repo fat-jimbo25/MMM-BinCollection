@@ -18,6 +18,11 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
 
   const today = new Date();
 
+  // For debugging - log the entire bin schedule
+  useEffect(() => {
+    console.log('Bin Schedule:', binSchedule);
+  }, []);
+
   const navigateWeek = (direction: 'next' | 'prev') => {
     setIsAnimating(true);
     setTimeout(() => {
@@ -40,6 +45,9 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
       // Get bins for this day from our schedule data
       const formattedDate = format(day, 'yyyy-MM-dd');
       const binsForDay = binSchedule[formattedDate] || [];
+      
+      // Debug log to see what bins we're finding for each day
+      console.log(`Day ${formattedDate}:`, binsForDay);
 
       days.push(
         <WeekDay 
@@ -125,7 +133,7 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({ className }) => {
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center">
             <BinIcon type="black" size="sm" className="mr-2" />
-            <span className="text-xs">General/Purple</span>
+            <span className="text-xs">Non-recyclable/Purple</span>
           </div>
           <div className="flex items-center">
             <BinIcon type="blue" size="sm" className="mr-2" />

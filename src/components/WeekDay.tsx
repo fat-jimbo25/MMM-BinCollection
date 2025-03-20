@@ -14,6 +14,9 @@ interface WeekDayProps {
 }
 
 const WeekDay: React.FC<WeekDayProps> = ({ date, bins, isToday, isCurrentWeek }) => {
+  // For debugging - log the date and bins
+  console.log(`Rendering day: ${format(date, 'yyyy-MM-dd')}`, bins);
+  
   return (
     <div 
       className={cn(

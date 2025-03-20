@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
+import { Toaster } from '@/components/ui/sonner';
 
 const Index = () => {
   const [mounted, setMounted] = useState(false);
@@ -26,6 +27,7 @@ const Index = () => {
           </div>
         )}
       </div>
+      <Toaster />
     </div>
   );
 };
