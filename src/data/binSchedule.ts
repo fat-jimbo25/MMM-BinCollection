@@ -13,20 +13,20 @@ export const binSchedule: Record<string, BinType[]> = {
   "2025-03-27": ["brown"], // Food Waste - Brown bin
   "2025-03-31": ["black"], // Non-recyclable Waste - purple bin (using black color)
   
-  // April 2025
+  // April 2025 - Ensuring no Saturday collections
   "2025-04-03": ["black", "blue"],
   "2025-04-10": ["green", "brown"],
   "2025-04-17": ["black", "blue"],
   "2025-04-24": ["green", "brown"],
   
-  // May 2025
+  // May 2025 - Ensuring no Saturday collections
   "2025-05-01": ["black", "blue"],
   "2025-05-08": ["green", "brown"],
   "2025-05-15": ["black", "blue"],
   "2025-05-22": ["green", "brown"],
   "2025-05-29": ["black", "blue"],
   
-  // June 2025
+  // June 2025 - Ensuring no Saturday collections
   "2025-06-05": ["green", "brown"],
   "2025-06-12": ["black", "blue"],
   "2025-06-19": ["green", "brown"],
