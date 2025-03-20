@@ -4,7 +4,7 @@ import { BinType } from '@/components/WeekDay';
 // Bin collection schedule from the Bin Calendar By Date (2025-03-20).pdf
 export const binSchedule: Record<string, BinType[]> = {
   // March 2025
-  "2025-03-20": ["black", "blue"],
+  "2025-03-20": ["brown"], // Updated to brown food waste bin only
   "2025-03-27": ["green", "brown"],
   
   // April 2025
