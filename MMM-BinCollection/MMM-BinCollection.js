@@ -20,11 +20,38 @@ Module.register("MMM-BinCollection", {
         weekStartsOn: 1, // 0 = Sunday, 1 = Monday
         showLegend: true,
         showWeekends: false,
+        scheduleMonths: 6, // How many months ahead to generate
+        saveGeneratedSchedule: true, // Save generated schedule to file
         bins: {
             black: { label: "Non-recyclable/Purple" },
             blue: { label: "Paper, Plastic & Cans/Grey" },
             green: { label: "Garden" },
             brown: { label: "Food" }
+        },
+        // Recurring collections configuration
+        recurring: {
+            weekly: [
+                { binType: "brown", dayOfWeek: 4 }  // Brown bins every Thursday (4 = Thursday)
+            ],
+            biweekly: [
+                { binType: "blue", dayOfWeek: 1, startWeek: "odd" },    // Blue bins on odd weeks (Monday)
+                { binType: "black", dayOfWeek: 1, startWeek: "even" }    // Black bins on even weeks (Monday)
+            ],
+            seasonal: [
+                { 
+                    binType: "green", 
+                    dayOfWeek: 3,         // Wednesday
+                    startMonth: 3,        // March
+                    endMonth: 11,         // November
+                    interval: "biweekly"  // Every two weeks
+                }
+            ],
+            // monthly: [] - Enable this for monthly collections
+        },
+        // Manual schedule overrides - these take precedence over generated entries
+        manualSchedule: {
+            // "2024-12-25": [], // Example: No collections on Christmas Day
+            // "2024-12-27": ["black", "blue"] // Example: Special collection after Christmas
         }
     },
 
@@ -46,6 +73,10 @@ Module.register("MMM-BinCollection", {
         this.loaded = false;
         this.currentWeekStart = moment().startOf('week').add(this.config.weekStartsOn, 'days');
         
+        // Send config to the node helper - this will trigger schedule generation
+        this.sendSocketNotification("SET_CONFIG", this.config);
+        
+        // Request the bin schedule data
         this.sendSocketNotification("GET_BIN_SCHEDULE", {});
         
         // Schedule updates
