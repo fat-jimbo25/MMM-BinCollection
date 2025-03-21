@@ -6,6 +6,12 @@
  * MIT Licensed.
  */
 
+// Import components
+const Day = require('./components/Day');
+const Legend = require('./components/Legend');
+const Header = require('./components/Header');
+const { getWeekDays } = require('./utils/dateUtils');
+
 Module.register("MMM-BinCollection", {
     // Default module config
     defaults: {
@@ -93,134 +99,33 @@ Module.register("MMM-BinCollection", {
             return wrapper;
         }
 
-        // Header
-        const header = document.createElement("div");
-        header.className = "module-header";
-        
-        const title = document.createElement("h2");
-        title.textContent = "Bin Collection";
-        title.className = "bin-title";
-        header.appendChild(title);
-
-        const weekText = document.createElement("div");
-        weekText.textContent = "Week of " + this.currentWeekStart.format('MMMM D, YYYY');
-        weekText.className = "week-date";
-        header.appendChild(weekText);
-
-        // Navigation
-        const nav = document.createElement("div");
-        nav.className = "bin-nav";
-        
-        const prevBtn = document.createElement("button");
-        prevBtn.innerHTML = "❮";
-        prevBtn.className = "nav-btn";
-        prevBtn.addEventListener("click", () => this.navigateWeek('prev'));
-        nav.appendChild(prevBtn);
-        
-        const todayBtn = document.createElement("button");
-        todayBtn.textContent = "Today";
-        todayBtn.className = "today-btn";
-        todayBtn.addEventListener("click", () => this.goToCurrentWeek());
-        nav.appendChild(todayBtn);
-        
-        const nextBtn = document.createElement("button");
-        nextBtn.innerHTML = "❯";
-        nextBtn.className = "nav-btn";
-        nextBtn.addEventListener("click", () => this.navigateWeek('next'));
-        nav.appendChild(nextBtn);
-        
-        header.appendChild(nav);
-        wrapper.appendChild(header);
+        // Add header with navigation
+        const headerElement = Header(
+            this.currentWeekStart, 
+            this.navigateWeek.bind(this), 
+            this.goToCurrentWeek.bind(this)
+        );
+        wrapper.appendChild(headerElement);
 
         // Calendar days
         const calendarContainer = document.createElement("div");
         calendarContainer.className = "calendar-container";
         
-        // Create 7 days of the week
+        // Create week days
         const today = moment();
-        for (let i = 0; i < 7; i++) {
-            const day = moment(this.currentWeekStart).add(i, 'days');
-            const isToday = day.isSame(today, 'day');
-            const isCurrentWeek = day.isSame(today, 'week');
-            
-            // Skip weekends if configured
-            const dayOfWeek = day.day(); // 0 is Sunday, 6 is Saturday
-            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-            
-            if (isWeekend && !this.config.showWeekends) {
-                continue;
-            }
-            
-            const dayElement = document.createElement("div");
-            dayElement.className = "day-container" + (isToday ? " today" : "") + (isCurrentWeek ? " current-week" : "");
-            
-            // Day name
-            const dayName = document.createElement("div");
-            dayName.textContent = day.format('ddd');
-            dayName.className = "day-name";
-            dayElement.appendChild(dayName);
-            
-            // Day number
-            const dayNumber = document.createElement("div");
-            dayNumber.textContent = day.format('D');
-            dayNumber.className = "day-number";
-            dayElement.appendChild(dayNumber);
-            
-            // Bins for this day
-            const formattedDate = day.format('YYYY-MM-DD');
-            const binsForDay = this.binSchedule[formattedDate] || [];
-            
-            if (binsForDay.length > 0) {
-                const binsContainer = document.createElement("div");
-                binsContainer.className = "bins-container";
-                
-                binsForDay.forEach(binType => {
-                    if (this.config.bins[binType]) {
-                        const binIcon = document.createElement("div");
-                        binIcon.className = `bin-icon bin-${binType}`;
-                        binsContainer.appendChild(binIcon);
-                    }
-                });
-                
-                dayElement.appendChild(binsContainer);
-            }
-            
+        const weekDays = getWeekDays(this.currentWeekStart, this.config.showWeekends);
+        
+        weekDays.forEach(day => {
+            const dayElement = Day(day, today, this.binSchedule, this.config.bins);
             calendarContainer.appendChild(dayElement);
-        }
+        });
         
         wrapper.appendChild(calendarContainer);
 
         // Legend
         if (this.config.showLegend) {
-            const legend = document.createElement("div");
-            legend.className = "bin-legend";
-            
-            const legendTitle = document.createElement("div");
-            legendTitle.textContent = "Legend";
-            legendTitle.className = "legend-title";
-            legend.appendChild(legendTitle);
-            
-            const legendItems = document.createElement("div");
-            legendItems.className = "legend-items";
-            
-            Object.entries(this.config.bins).forEach(([binType, binInfo]) => {
-                const legendItem = document.createElement("div");
-                legendItem.className = "legend-item";
-                
-                const binIcon = document.createElement("div");
-                binIcon.className = `bin-icon bin-${binType} legend-icon`;
-                legendItem.appendChild(binIcon);
-                
-                const binLabel = document.createElement("span");
-                binLabel.textContent = binInfo.label;
-                binLabel.className = "bin-label";
-                legendItem.appendChild(binLabel);
-                
-                legendItems.appendChild(legendItem);
-            });
-            
-            legend.appendChild(legendItems);
-            wrapper.appendChild(legend);
+            const legendElement = Legend(this.config.bins);
+            wrapper.appendChild(legendElement);
         }
 
         return wrapper;
