@@ -1,4 +1,3 @@
-
 /* Magic Mirror
  * Module: MMM-BinCollection
  * 
@@ -20,7 +19,7 @@ Module.register("MMM-BinCollection", {
         weekStartsOn: 1, // 0 = Sunday, 1 = Monday
         showLegend: true,
         showWeekends: false,
-        scheduleMonths: 6, // How many months ahead to generate
+        scheduleMonths: 12, // How many months ahead to generate
         saveGeneratedSchedule: true, // Save generated schedule to file
         bins: {
             black: { label: "Non-recyclable/Purple" },
@@ -28,30 +27,50 @@ Module.register("MMM-BinCollection", {
             green: { label: "Garden" },
             brown: { label: "Food" }
         },
-        // Recurring collections configuration
+        // Recurring collections configuration - adjusted based on your specific pattern
         recurring: {
+            // Weekly collections
             weekly: [
-                { binType: "brown", dayOfWeek: 4 }  // Brown bins every Thursday (4 = Thursday)
+                { binType: "brown", dayOfWeek: 4 }  // Brown (Food Waste) bins every Thursday
             ],
-            biweekly: [
-                { binType: "blue", dayOfWeek: 1, startWeek: "odd" },    // Blue bins on odd weeks (Monday)
-                { binType: "black", dayOfWeek: 1, startWeek: "even" }    // Black bins on even weeks (Monday)
+            // Special weekend collections
+            special: [
+                { date: "2025-12-27", bins: ["brown"] }, // Saturday collection
+                { date: "2026-01-03", bins: ["brown"] }  // Saturday collection  
             ],
-            seasonal: [
-                { 
-                    binType: "green", 
-                    dayOfWeek: 3,         // Wednesday
-                    startMonth: 3,        // March
-                    endMonth: 11,         // November
-                    interval: "biweekly"  // Every two weeks
+            // Custom Monday pattern - modified to match your 3-week rotation
+            custom: [
+                {
+                    binType: "black", // Non-recyclable Waste
+                    dayOfWeek: 1,     // Monday
+                    startDate: "2025-03-17",
+                    interval: 3       // Every 3 weeks
+                },
+                {
+                    binType: "blue",  // Paper and card
+                    dayOfWeek: 1,     // Monday  
+                    startDate: "2025-03-24",
+                    interval: 6       // Every 6 weeks (alternates with the other blue bin type)
+                },
+                {
+                    binType: "blue",  // Plastic bottles and containers, cans and cartons
+                    dayOfWeek: 1,     // Monday
+                    startDate: "2025-04-07", 
+                    interval: 6       // Every 6 weeks (alternates with the other blue bin type)
+                },
+                {
+                    binType: "green", // Garden Waste
+                    dayOfWeek: 3,     // Wednesday
+                    startDate: "2025-03-19",
+                    interval: 2,      // Every 2 weeks
+                    startMonth: 3,    // March
+                    endMonth: 11      // November (excluding December-February)
                 }
-            ],
-            // monthly: [] - Enable this for monthly collections
+            ]
         },
         // Manual schedule overrides - these take precedence over generated entries
         manualSchedule: {
-            // "2024-12-25": [], // Example: No collections on Christmas Day
-            // "2024-12-27": ["black", "blue"] // Example: Special collection after Christmas
+            // No collection dates (if needed)
         }
     },
 
@@ -162,3 +181,4 @@ Module.register("MMM-BinCollection", {
         return wrapper;
     }
 });
+

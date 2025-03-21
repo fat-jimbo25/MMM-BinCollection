@@ -39,32 +39,31 @@ module.exports = NodeHelper.create({
     },
 
     createDefaultSchedule: function(filePath) {
-        console.log("Creating default schedule");
-        // Create a basic schedule for the next few months using recurring rules
+        console.log("Creating default schedule based on your local collection pattern");
+        // Create schedule based on your specific pattern
         const defaultConfig = {
             // Weekly collections
             weekly: [
-                { binType: "brown", dayOfWeek: 4 }  // Brown bins every Thursday
+                { binType: "brown", dayOfWeek: 4 }  // Brown (Food Waste) bins every Thursday
             ],
-            // Bi-weekly collections
+            // Alternating collections on Mondays (3 week rotation)
             biweekly: [
-                { binType: "blue", dayOfWeek: 1, startWeek: "odd" },    // Blue bins on odd weeks (Monday)
-                { binType: "black", dayOfWeek: 1, startWeek: "even" }    // Black bins on even weeks (Monday)
+                { binType: "black", dayOfWeek: 1, startDate: "2025-03-17" }, // Non-recyclable waste
+                { binType: "blue", dayOfWeek: 1, startDate: "2025-03-24" }   // Alternates between paper/card and plastic/cans
             ],
-            // Seasonal collections
-            seasonal: [
-                { 
-                    binType: "green", 
-                    dayOfWeek: 3,         // Wednesday
-                    startMonth: 3,        // March
-                    endMonth: 11,         // November
-                    interval: "biweekly"  // Every two weeks
-                }
+            // Bi-weekly collections on Wednesdays (Garden waste)
+            biweekly: [
+                { binType: "green", dayOfWeek: 3, startDate: "2025-03-19" }  // Garden waste
+            ],
+            // Special collections
+            special: [
+                { date: "2025-12-27", bins: ["brown"] }, // Saturday collection
+                { date: "2026-01-03", bins: ["brown"] }  // Saturday collection
             ]
         };
         
-        // Generate schedule for 6 months
-        const schedule = generateRecurringCollections(defaultConfig, new Date(), 6);
+        // Generate schedule for 12 months
+        const schedule = generateRecurringCollections(defaultConfig, new Date(), 12);
         
         // Write the default schedule to file
         fs.writeFileSync(filePath, JSON.stringify(schedule, null, 2), "utf8");
@@ -84,7 +83,7 @@ module.exports = NodeHelper.create({
         const generatedSchedule = generateRecurringCollections(
             this.config.recurring, 
             new Date(), 
-            this.config.scheduleMonths || 6
+            this.config.scheduleMonths || 12
         );
         
         // Merge with any manually specified dates (manual overrides take precedence)

@@ -1,4 +1,3 @@
-
 /* Utility functions for date operations */
 
 /**
@@ -46,7 +45,7 @@ exports.getWeekDays = function(weekStart, showWeekends) {
  * @param {number} months - Number of months to generate
  * @returns {object} Schedule object with dates as keys and bin types as values
  */
-exports.generateRecurringCollections = function(config, startDate = new Date(), months = 6) {
+exports.generateRecurringCollections = function(config, startDate = new Date(), months = 12) {
     const schedule = {};
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + months);
@@ -62,8 +61,8 @@ exports.generateRecurringCollections = function(config, startDate = new Date(), 
     // Process bi-weekly collections
     if (config.biweekly && config.biweekly.length > 0) {
         config.biweekly.forEach(item => {
-            const { binType, dayOfWeek, startWeek, skipHolidays } = item;
-            generateBiWeeklyDates(startDate, endDate, dayOfWeek, binType, startWeek, skipHolidays, schedule, this.formatDate);
+            const { binType, dayOfWeek, startDate: specificStartDate, skipHolidays } = item;
+            generateBiWeeklyDates(startDate, endDate, dayOfWeek, binType, specificStartDate, skipHolidays, schedule, this.formatDate);
         });
     }
     
@@ -80,6 +79,43 @@ exports.generateRecurringCollections = function(config, startDate = new Date(), 
         config.seasonal.forEach(item => {
             const { binType, dayOfWeek, startMonth, endMonth, interval, skipHolidays } = item;
             generateSeasonalDates(startDate, endDate, binType, dayOfWeek, startMonth, endMonth, interval, skipHolidays, schedule, this.formatDate);
+        });
+    }
+    
+    // Process custom interval collections (for the 3-week rotation)
+    if (config.custom && config.custom.length > 0) {
+        config.custom.forEach(item => {
+            const { 
+                binType, 
+                dayOfWeek, 
+                startDate: specificStartDate, 
+                interval, 
+                startMonth, 
+                endMonth 
+            } = item;
+            
+            generateCustomIntervalDates(
+                startDate, 
+                endDate, 
+                binType, 
+                dayOfWeek, 
+                specificStartDate, 
+                interval, 
+                startMonth, 
+                endMonth, 
+                schedule, 
+                this.formatDate
+            );
+        });
+    }
+    
+    // Process special one-off dates
+    if (config.special && config.special.length > 0) {
+        config.special.forEach(item => {
+            const { date, bins } = item;
+            if (date && bins) {
+                schedule[date] = bins;
+            }
         });
     }
     
@@ -114,32 +150,34 @@ function generateWeeklyDates(startDate, endDate, dayOfWeek, binType, schedule, f
 }
 
 /**
- * Helper to generate bi-weekly recurring dates
+ * Helper to generate bi-weekly recurring dates with specific start date
  * @private
  */
-function generateBiWeeklyDates(startDate, endDate, dayOfWeek, binType, startWeek, skipHolidays, schedule, formatDateFn) {
-    const current = new Date(startDate);
+function generateBiWeeklyDates(startDate, endDate, dayOfWeek, binType, specificStartDate, skipHolidays, schedule, formatDateFn) {
+    let current;
     
-    // Move to the first occurrence of the specified day of week
-    const currentDayOfWeek = current.getDay();
-    const daysToAdd = (dayOfWeek - currentDayOfWeek + 7) % 7;
-    current.setDate(current.getDate() + daysToAdd);
-    
-    // Adjust to match the start week pattern if needed
-    if (startWeek === 'even' && current.getDate() % 2 !== 0) {
-        current.setDate(current.getDate() + 7);
-    } else if (startWeek === 'odd' && current.getDate() % 2 === 0) {
-        current.setDate(current.getDate() + 7);
+    // If a specific start date is provided, use that
+    if (specificStartDate) {
+        current = new Date(specificStartDate);
+    } else {
+        current = new Date(startDate);
+        
+        // Move to the first occurrence of the specified day of week
+        const currentDayOfWeek = current.getDay();
+        const daysToAdd = (dayOfWeek - currentDayOfWeek + 7) % 7;
+        current.setDate(current.getDate() + daysToAdd);
     }
     
     // Generate bi-weekly occurrences until the end date
     while (current <= endDate) {
         const dateKey = formatDateFn(current);
         
-        if (!schedule[dateKey]) {
-            schedule[dateKey] = [binType];
-        } else if (!schedule[dateKey].includes(binType)) {
-            schedule[dateKey].push(binType);
+        if (current >= startDate) {
+            if (!schedule[dateKey]) {
+                schedule[dateKey] = [binType];
+            } else if (!schedule[dateKey].includes(binType)) {
+                schedule[dateKey].push(binType);
+            }
         }
         
         // Move to next bi-weekly occurrence
@@ -271,6 +309,69 @@ function generateSeasonalDates(startDate, endDate, binType, dayOfWeek, startMont
         
         // Move forward based on interval (default to weekly if not specified)
         const intervalDays = interval === 'biweekly' ? 14 : 7;
+        current.setDate(current.getDate() + intervalDays);
+    }
+}
+
+/**
+ * Helper to generate custom interval recurring dates (for 3-week rotation)
+ * @private
+ */
+function generateCustomIntervalDates(
+    baseStartDate, 
+    endDate, 
+    binType, 
+    dayOfWeek, 
+    specificStartDate, 
+    intervalWeeks, 
+    startMonth, 
+    endMonth, 
+    schedule, 
+    formatDateFn
+) {
+    let current;
+    
+    // If a specific start date is provided, use that
+    if (specificStartDate) {
+        current = new Date(specificStartDate);
+    } else {
+        current = new Date(baseStartDate);
+        
+        // Move to the first occurrence of the specified day of week
+        const currentDayOfWeek = current.getDay();
+        const daysToAdd = (dayOfWeek - currentDayOfWeek + 7) % 7;
+        current.setDate(current.getDate() + daysToAdd);
+    }
+    
+    // Generate occurrences with custom interval until the end date
+    while (current <= endDate) {
+        const currentMonth = current.getMonth() + 1; // 1-12 format
+        
+        // Check if we're in season (if seasonal constraints are provided)
+        let inSeason = true;
+        if (startMonth && endMonth) {
+            if (startMonth <= endMonth) {
+                // Season within same year
+                inSeason = currentMonth >= startMonth && currentMonth <= endMonth;
+            } else {
+                // Season spans years
+                inSeason = currentMonth >= startMonth || currentMonth <= endMonth;
+            }
+        }
+        
+        // Add to schedule if date is valid and in season
+        if (current >= baseStartDate && inSeason) {
+            const dateKey = formatDateFn(current);
+            
+            if (!schedule[dateKey]) {
+                schedule[dateKey] = [binType];
+            } else if (!schedule[dateKey].includes(binType)) {
+                schedule[dateKey].push(binType);
+            }
+        }
+        
+        // Move to next occurrence based on custom interval
+        const intervalDays = (intervalWeeks || 1) * 7;
         current.setDate(current.getDate() + intervalDays);
     }
 }

@@ -1,9 +1,13 @@
 
 import { BinType } from '@/components/WeekDay';
 
-// Bin collection schedule from the full list provided by the user
+// Bin collection schedule from the detailed calendar provided by the user
 export const binSchedule: Record<string, BinType[]> = {
   // March 2025
+  "2025-03-06": ["brown"], // Food Waste
+  "2025-03-13": ["brown"], // Food Waste
+  "2025-03-17": ["black"], // Non-recyclable Waste
+  "2025-03-19": ["green"], // Garden Waste
   "2025-03-20": ["brown"], // Food Waste
   "2025-03-24": ["blue"],  // Plastic bottles and containers, cans and cartons
   "2025-03-27": ["brown"], // Food Waste
@@ -12,7 +16,7 @@ export const binSchedule: Record<string, BinType[]> = {
   // April 2025
   "2025-04-02": ["green"], // Garden Waste
   "2025-04-03": ["brown"], // Food Waste
-  "2025-04-07": ["blue"],  // Paper and card (using blue color)
+  "2025-04-07": ["blue"],  // Paper and card
   "2025-04-10": ["brown"], // Food Waste
   "2025-04-14": ["black"], // Non-recyclable Waste
   "2025-04-16": ["green"], // Garden Waste
@@ -120,11 +124,11 @@ export const binSchedule: Record<string, BinType[]> = {
   "2025-12-15": ["blue"],  // Paper and card
   "2025-12-18": ["brown"], // Food Waste
   "2025-12-22": ["black"], // Non-recyclable Waste
-  "2025-12-27": [],        // No collections on weekends
+  "2025-12-27": ["brown"], // Food Waste (Saturday)
   "2025-12-29": ["blue"],  // Plastic bottles and containers, cans and cartons
   
   // January 2026
-  "2026-01-03": [],        // No collections on weekends
+  "2026-01-03": ["brown"], // Food Waste (Saturday)
   "2026-01-05": ["black"], // Non-recyclable Waste
   "2026-01-08": ["brown"], // Food Waste
   "2026-01-12": ["blue"],  // Paper and card
@@ -143,12 +147,7 @@ export const binSchedule: Record<string, BinType[]> = {
   "2026-02-18": ["green"], // Garden Waste
   "2026-02-19": ["brown"], // Food Waste
   "2026-02-23": ["blue"],  // Plastic bottles and containers, cans and cartons
-  "2026-02-26": ["brown"], // Food Waste
-  
-  // Add current date entries for testing (so something shows in the current view)
-  [format(new Date(), 'yyyy-MM-dd')]: ["brown"],
-  [format(addDays(new Date(), 2), 'yyyy-MM-dd')]: [], // Remove weekend collections
-  [format(addDays(new Date(), 4), 'yyyy-MM-dd')]: ["blue"],
+  "2026-02-26": ["brown"]  // Food Waste
 };
 
 // Helper function to format date as yyyy-MM-dd
