@@ -111,7 +111,7 @@ module.exports = NodeHelper.create({
     socketNotificationReceived: function(notification, payload) {
         console.log(`${this.name} received socket notification: ${notification}`);
         if (notification === "GET_BIN_SCHEDULE") {
-            console.log(`${this.name} sending bin schedule data`);
+            console.log(`${this.name} sending bin schedule data`, Object.keys(this.binSchedule).length);
             this.sendSocketNotification("BIN_SCHEDULE_DATA", this.binSchedule);
         }
     }

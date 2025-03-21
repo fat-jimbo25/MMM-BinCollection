@@ -40,7 +40,6 @@ Module.register("MMM-BinCollection", {
         this.loaded = false;
         this.currentWeekStart = moment().startOf('week').add(this.config.weekStartsOn, 'days');
         
-        // Request bin schedule data immediately
         this.sendSocketNotification("GET_BIN_SCHEDULE", {});
         
         // Schedule updates
@@ -53,8 +52,9 @@ Module.register("MMM-BinCollection", {
     // Override socket notification handler
     socketNotificationReceived: function(notification, payload) {
         Log.info(`${this.name} received notification: ${notification}`);
+        
         if (notification === "BIN_SCHEDULE_DATA") {
-            Log.info(`${this.name} received bin schedule data`);
+            Log.info(`${this.name} received bin schedule data with ${Object.keys(payload).length} entries`);
             this.binSchedule = payload;
             this.loaded = true;
             this.updateDom(this.config.animationSpeed);
@@ -86,6 +86,10 @@ Module.register("MMM-BinCollection", {
             wrapper.innerHTML = "Loading bin collection data...";
             wrapper.className = "dimmed light small";
             Log.info(`${this.name} is still loading data...`);
+            
+            // Try requesting data again if we're still loading
+            this.sendSocketNotification("GET_BIN_SCHEDULE", {});
+            
             return wrapper;
         }
 
