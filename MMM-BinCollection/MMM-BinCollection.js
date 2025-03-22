@@ -175,12 +175,15 @@ Module.register("MMM-BinCollection", {
             const legendElement = document.createElement("div");
             legendElement.className = "legend";
             
+            const legendItems = document.createElement("div");
+            legendItems.className = "legend-items";
+            
             Object.entries(this.config.bins).forEach(([binType, binConfig]) => {
                 const legendItem = document.createElement("div");
                 legendItem.className = "legend-item";
                 
                 const binIcon = document.createElement("div");
-                binIcon.className = `bin-icon bin-${binType}`;
+                binIcon.className = `bin-icon legend-icon bin-${binType}`;
                 legendItem.appendChild(binIcon);
                 
                 const binLabel = document.createElement("div");
@@ -188,9 +191,10 @@ Module.register("MMM-BinCollection", {
                 binLabel.innerHTML = binConfig.label;
                 legendItem.appendChild(binLabel);
                 
-                legendElement.appendChild(legendItem);
+                legendItems.appendChild(legendItem);
             });
             
+            legendElement.appendChild(legendItems);
             wrapper.appendChild(legendElement);
         }
 
