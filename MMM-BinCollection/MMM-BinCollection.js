@@ -1,15 +1,10 @@
+
 /* Magic Mirror
  * Module: MMM-BinCollection
  * 
  * By Lovable
  * MIT Licensed.
  */
-
-// Import components
-const Day = require('./components/Day');
-const Legend = require('./components/Legend');
-const Header = require('./components/Header');
-const { getWeekDays } = require('./utils/dateUtils');
 
 Module.register("MMM-BinCollection", {
     // Default module config
@@ -19,58 +14,11 @@ Module.register("MMM-BinCollection", {
         weekStartsOn: 1, // 0 = Sunday, 1 = Monday
         showLegend: true,
         showWeekends: false,
-        scheduleMonths: 12, // How many months ahead to generate
-        saveGeneratedSchedule: true, // Save generated schedule to file
         bins: {
             black: { label: "Non-recyclable/Purple" },
             blue: { label: "Paper, Plastic & Cans/Grey" },
             green: { label: "Garden" },
             brown: { label: "Food" }
-        },
-        // Recurring collections configuration - adjusted based on your specific pattern
-        recurring: {
-            // Weekly collections
-            weekly: [
-                { binType: "brown", dayOfWeek: 4 }  // Brown (Food Waste) bins every Thursday
-            ],
-            // Special weekend collections
-            special: [
-                { date: "2025-12-27", bins: ["brown"] }, // Saturday collection
-                { date: "2026-01-03", bins: ["brown"] }  // Saturday collection  
-            ],
-            // Custom Monday pattern - modified to match your 3-week rotation
-            custom: [
-                {
-                    binType: "black", // Non-recyclable Waste
-                    dayOfWeek: 1,     // Monday
-                    startDate: "2025-03-17",
-                    interval: 3       // Every 3 weeks
-                },
-                {
-                    binType: "blue",  // Paper and card
-                    dayOfWeek: 1,     // Monday  
-                    startDate: "2025-03-24",
-                    interval: 6       // Every 6 weeks (alternates with the other blue bin type)
-                },
-                {
-                    binType: "blue",  // Plastic bottles and containers, cans and cartons
-                    dayOfWeek: 1,     // Monday
-                    startDate: "2025-04-07", 
-                    interval: 6       // Every 6 weeks (alternates with the other blue bin type)
-                },
-                {
-                    binType: "green", // Garden Waste
-                    dayOfWeek: 3,     // Wednesday
-                    startDate: "2025-03-19",
-                    interval: 2,      // Every 2 weeks
-                    startMonth: 3,    // March
-                    endMonth: 11      // November (excluding December-February)
-                }
-            ]
-        },
-        // Manual schedule overrides - these take precedence over generated entries
-        manualSchedule: {
-            // No collection dates (if needed)
         }
     },
 
@@ -92,7 +40,7 @@ Module.register("MMM-BinCollection", {
         this.loaded = false;
         this.currentWeekStart = moment().startOf('week').add(this.config.weekStartsOn, 'days');
         
-        // Send config to the node helper - this will trigger schedule generation
+        // Send config to the node helper
         this.sendSocketNotification("SET_CONFIG", this.config);
         
         // Request the bin schedule data
@@ -117,22 +65,6 @@ Module.register("MMM-BinCollection", {
         }
     },
 
-    // Navigate week
-    navigateWeek: function(direction) {
-        if (direction === 'next') {
-            this.currentWeekStart = moment(this.currentWeekStart).add(1, 'weeks');
-        } else {
-            this.currentWeekStart = moment(this.currentWeekStart).subtract(1, 'weeks');
-        }
-        this.updateDom(this.config.animationSpeed);
-    },
-
-    // Go to current week
-    goToCurrentWeek: function() {
-        this.currentWeekStart = moment().startOf('week').add(this.config.weekStartsOn, 'days');
-        this.updateDom(this.config.animationSpeed);
-    },
-
     // Override dom generator
     getDom: function() {
         const wrapper = document.createElement("div");
@@ -141,44 +73,105 @@ Module.register("MMM-BinCollection", {
         if (!this.loaded) {
             wrapper.innerHTML = "Loading bin collection data...";
             wrapper.className = "dimmed light small";
-            Log.info(`${this.name} is still loading data...`);
-            
-            // Try requesting data again if we're still loading
-            this.sendSocketNotification("GET_BIN_SCHEDULE", {});
-            
             return wrapper;
         }
 
-        // Add header with navigation
-        const headerElement = Header(
-            this.currentWeekStart, 
-            this.navigateWeek.bind(this), 
-            this.goToCurrentWeek.bind(this)
-        );
-        wrapper.appendChild(headerElement);
-
-        // Calendar days
-        const calendarContainer = document.createElement("div");
-        calendarContainer.className = "calendar-container";
+        // Create header
+        const header = document.createElement("div");
+        header.className = "module-header";
+        header.innerHTML = "Bin Collection";
+        wrapper.appendChild(header);
         
-        // Create week days
+        // Create calendar view
+        const calendarView = document.createElement("div");
+        calendarView.className = "calendar-view";
+        
+        // Get start of week
+        const weekStart = moment(this.currentWeekStart);
         const today = moment();
-        const weekDays = getWeekDays(this.currentWeekStart, this.config.showWeekends);
         
-        weekDays.forEach(day => {
-            const dayElement = Day(day, today, this.binSchedule, this.config.bins);
-            calendarContainer.appendChild(dayElement);
-        });
+        // Display week date range
+        const weekDateRange = document.createElement("div");
+        weekDateRange.className = "week-date-range";
+        weekDateRange.innerHTML = `Week of ${weekStart.format("MMM D")}`;
+        calendarView.appendChild(weekDateRange);
         
-        wrapper.appendChild(calendarContainer);
-
-        // Legend
+        // Display days
+        const daysContainer = document.createElement("div");
+        daysContainer.className = "days-container";
+        
+        // Loop through the days of the week
+        for (let i = 0; i < (this.config.showWeekends ? 7 : 5); i++) {
+            const day = moment(weekStart).add(i, "days");
+            const dateStr = day.format("YYYY-MM-DD");
+            const binsForDay = this.binSchedule[dateStr] || [];
+            
+            const dayElement = document.createElement("div");
+            dayElement.className = "day-element" + (day.isSame(today, "day") ? " today" : "");
+            
+            // Day name
+            const dayName = document.createElement("div");
+            dayName.className = "day-name";
+            dayName.innerHTML = day.format("ddd");
+            dayElement.appendChild(dayName);
+            
+            // Day date
+            const dayDate = document.createElement("div");
+            dayDate.className = "day-date";
+            dayDate.innerHTML = day.format("D");
+            dayElement.appendChild(dayDate);
+            
+            // Bins
+            const binsElement = document.createElement("div");
+            binsElement.className = "bins-element";
+            
+            if (binsForDay.length > 0) {
+                binsForDay.forEach(binType => {
+                    if (this.config.bins[binType]) {
+                        const binElement = document.createElement("div");
+                        binElement.className = `bin-icon bin-${binType}`;
+                        binElement.title = this.config.bins[binType].label;
+                        binsElement.appendChild(binElement);
+                    }
+                });
+            } else {
+                const noBinsElement = document.createElement("div");
+                noBinsElement.className = "no-bins";
+                noBinsElement.innerHTML = "No collection";
+                binsElement.appendChild(noBinsElement);
+            }
+            
+            dayElement.appendChild(binsElement);
+            daysContainer.appendChild(dayElement);
+        }
+        
+        calendarView.appendChild(daysContainer);
+        wrapper.appendChild(calendarView);
+        
+        // Add legend if configured
         if (this.config.showLegend) {
-            const legendElement = Legend(this.config.bins);
+            const legendElement = document.createElement("div");
+            legendElement.className = "legend";
+            
+            Object.entries(this.config.bins).forEach(([binType, binConfig]) => {
+                const legendItem = document.createElement("div");
+                legendItem.className = "legend-item";
+                
+                const binIcon = document.createElement("div");
+                binIcon.className = `bin-icon bin-${binType}`;
+                legendItem.appendChild(binIcon);
+                
+                const binLabel = document.createElement("div");
+                binLabel.className = "bin-label";
+                binLabel.innerHTML = binConfig.label;
+                legendItem.appendChild(binLabel);
+                
+                legendElement.appendChild(legendItem);
+            });
+            
             wrapper.appendChild(legendElement);
         }
 
         return wrapper;
     }
 });
-
