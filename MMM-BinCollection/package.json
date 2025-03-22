@@ -1,0 +1,11 @@
+
+{
+  "name": "MMM-BinCollection",
+  "version": "1.0.0",
+  "description": "Magic Mirror Module for displaying bin collection schedules",
+  "main": "MMM-BinCollection.js",
+  "type": "commonjs",
+  "author": "Lovable",
+  "license": "MIT",
+  "dependencies": {}
+}
