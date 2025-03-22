@@ -14,8 +14,6 @@ module.exports = NodeHelper.create({
     start: function() {
         console.log("Starting node helper for: " + this.name);
         this.binSchedule = {};
-        this.config = {};
-        this.loadBinSchedule();
     },
 
     loadBinSchedule: function() {
@@ -26,13 +24,14 @@ module.exports = NodeHelper.create({
                 const scheduleData = fs.readFileSync(schedulePath, "utf8");
                 this.binSchedule = JSON.parse(scheduleData);
                 console.log("Bin schedule data loaded successfully, found", Object.keys(this.binSchedule).length, "dates");
+                return this.binSchedule;
             } else {
-                console.log("No existing schedule found at: " + schedulePath);
-                this.binSchedule = {};
+                console.error("No existing schedule found at: " + schedulePath);
+                return {};
             }
         } catch (error) {
             console.error("Error loading bin schedule:", error);
-            this.binSchedule = {};
+            return {};
         }
     },
 
@@ -44,8 +43,9 @@ module.exports = NodeHelper.create({
             console.log("Config received by node helper");
         }
         else if (notification === "GET_BIN_SCHEDULE") {
-            console.log(`${this.name} sending bin schedule data with ${Object.keys(this.binSchedule).length} dates`);
-            this.sendSocketNotification("BIN_SCHEDULE_DATA", this.binSchedule);
+            const schedule = this.loadBinSchedule();
+            console.log(`${this.name} sending bin schedule data with ${Object.keys(schedule).length} dates`);
+            this.sendSocketNotification("BIN_SCHEDULE_DATA", schedule);
         }
     }
 });

@@ -14,6 +14,7 @@ Module.register("MMM-BinCollection", {
         weekStartsOn: 1, // 0 = Sunday, 1 = Monday
         showLegend: true,
         showWeekends: false,
+        maxDaysToShow: 5,
         bins: {
             black: { label: "Non-recyclable/Purple" },
             blue: { label: "Paper, Plastic & Cans/Grey" },
@@ -38,7 +39,14 @@ Module.register("MMM-BinCollection", {
         
         this.binSchedule = {};
         this.loaded = false;
-        this.currentWeekStart = moment().startOf('week').add(this.config.weekStartsOn, 'days');
+        
+        // Calculate current week start based on config
+        if (typeof moment !== 'undefined') {
+            this.currentWeekStart = moment().startOf('week').add(this.config.weekStartsOn, 'days');
+        } else {
+            Log.error("Moment.js not loaded!");
+            this.currentWeekStart = new Date();
+        }
         
         // Send config to the node helper
         this.sendSocketNotification("SET_CONFIG", this.config);
@@ -47,18 +55,20 @@ Module.register("MMM-BinCollection", {
         this.sendSocketNotification("GET_BIN_SCHEDULE", {});
         
         // Schedule updates
-        setInterval(() => {
-            this.sendSocketNotification("GET_BIN_SCHEDULE", {});
-            this.updateDom(this.config.animationSpeed);
+        this.scheduleUpdate();
+    },
+    
+    scheduleUpdate: function() {
+        const self = this;
+        setInterval(function() {
+            self.sendSocketNotification("GET_BIN_SCHEDULE", {});
         }, this.config.updateInterval);
     },
 
     // Override socket notification handler
     socketNotificationReceived: function(notification, payload) {
-        Log.info(`${this.name} received notification: ${notification}`);
-        
         if (notification === "BIN_SCHEDULE_DATA") {
-            Log.info(`${this.name} received bin schedule data with ${Object.keys(payload).length} entries`);
+            Log.info(this.name + " received bin schedule data");
             this.binSchedule = payload;
             this.loaded = true;
             this.updateDom(this.config.animationSpeed);
@@ -70,8 +80,16 @@ Module.register("MMM-BinCollection", {
         const wrapper = document.createElement("div");
         wrapper.className = "bin-collection-wrapper";
 
+        // Show loading message if data isn't loaded yet
         if (!this.loaded) {
             wrapper.innerHTML = "Loading bin collection data...";
+            wrapper.className = "dimmed light small";
+            return wrapper;
+        }
+        
+        // If we don't have moment.js, show an error
+        if (typeof moment === 'undefined') {
+            wrapper.innerHTML = "Error: moment.js not loaded";
             wrapper.className = "dimmed light small";
             return wrapper;
         }
@@ -100,8 +118,12 @@ Module.register("MMM-BinCollection", {
         const daysContainer = document.createElement("div");
         daysContainer.className = "days-container";
         
+        // Determine how many days to show
+        const daysToShow = this.config.showWeekends ? 7 : 5;
+        const maxDays = Math.min(daysToShow, this.config.maxDaysToShow);
+        
         // Loop through the days of the week
-        for (let i = 0; i < (this.config.showWeekends ? 7 : 5); i++) {
+        for (let i = 0; i < maxDays; i++) {
             const day = moment(weekStart).add(i, "days");
             const dateStr = day.format("YYYY-MM-DD");
             const binsForDay = this.binSchedule[dateStr] || [];
